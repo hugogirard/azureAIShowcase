@@ -34,7 +34,7 @@ resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
 
 module hubvnet 'core/networking/hub.bicep' = {
   scope: rgHub
-  name: ''
+  name: 'hubvnet'
   params: {
     addressPrefixe: hubVnetAddressPrefix
     location: location
