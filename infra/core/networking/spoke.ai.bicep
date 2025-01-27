@@ -11,7 +11,7 @@ resource nsgPe 'Microsoft.Network/networkSecurityGroups@2021-05-01' = {
 }
 
 resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
-  name: 'vnet-ase'
+  name: 'vnet-ai-shared-srv'
   location: location
   properties: {
     addressSpace: {
