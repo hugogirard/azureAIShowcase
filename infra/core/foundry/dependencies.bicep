@@ -12,7 +12,7 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
 }
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
-  name: 'acr-${suffix}'
+  name: 'acr${suffix}'
   location: location
   sku: {
     name: 'Premium'
