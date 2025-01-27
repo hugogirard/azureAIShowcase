@@ -71,3 +71,27 @@ module spokeAIFoundyVnet 'core/networking/spoke.ai.bicep' = {
     vnetAddressPrefix: vnetAddressAISpokePrefix
   }
 }
+
+var suffix = uniqueString(rgAISpoke.id)
+
+module foundryDependencies 'core/foundry/dependencies.bicep' = {
+  scope: rgAISpoke
+  name: 'foundryDependencies'
+  params: {
+    location: location
+    suffix: suffix
+  }
+}
+
+module aiFoundry 'core/foundry/ai.foundry.bicep' = {
+  scope: rgAISpoke
+  name: 'aiFoundry'
+  params: {
+    location: location
+    applicationInsightsId: foundryDependencies.outputs.applicationInsightId
+    containerRegistryId: foundryDependencies.outputs.containerRegistryId
+    keyVaultId: foundryDependencies.outputs.keyvaultId
+    storageAccountId: foundryDependencies.outputs.storageId
+    suffix: suffix
+  }
+}
