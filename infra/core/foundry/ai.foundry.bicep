@@ -6,7 +6,7 @@ param applicationInsightsId string
 param containerRegistryId string
 
 resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01' = {
-  name: 'aihub-dev-${suffix}'
+  name: 'aihub-${suffix}'
   location: location
   kind: 'hub'
   sku: {
