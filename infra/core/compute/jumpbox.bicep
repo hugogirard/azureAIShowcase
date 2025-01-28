@@ -68,6 +68,7 @@ resource jumpbox 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 
 resource shutdown 'Microsoft.DevTestLab/schedules@2018-09-15' = {
   name: 'shutdown-computevm-${jumpbox.name}'
+  location: location
   properties: {
     status: 'Enabled'
     taskType: 'ComputeVmShutdownTask'
