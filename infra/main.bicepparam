@@ -23,3 +23,7 @@ param vnetAddressAISpokePrefix = '10.1.0.0/16'
 param subnetPEAISpokeAddressPrefix = '10.1.1.0/24'
 
 param enableSoftDeleteVault = false
+
+param adminPassword = ''
+
+param adminUsername = ''

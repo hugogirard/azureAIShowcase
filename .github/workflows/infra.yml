@@ -12,7 +12,7 @@ jobs:
   create-azure-resources:
 
     env:
-      REGION: 'canadacentral' # You can change this to reflect the region where you deploy your ASE
+      REGION: 'canadacentral' # You can change this to reflect the region where you deploy your Accelerator
       AZURE_CORE_OUTPUT: 'none'
 
     runs-on: ubuntu-latest
