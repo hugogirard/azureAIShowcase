@@ -49,10 +49,8 @@ param enableSoftDeleteVault bool
 // @description('The admin password of the jumpbox and runner')
 // param adminPassword string
 
-var privateDNSZone = [
-  'privatelink.file.${environment().suffixes.storage}'
-  'privatelink.blob.${environment().suffixes.storage}'
-]
+var privateFileDNSZone = 'privatelink.file.${environment().suffixes.storage}'
+var privateBlobDNSZone = 'privatelink.blob.${environment().suffixes.storage}'
 
 resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: hubResourceGroupName
@@ -78,15 +76,21 @@ module hubvnet 'core/networking/hub.bicep' = {
   }
 }
 
-module privateDnsZone 'core/DNS/private.dns.zone.bicep' = [
-  for (zone, index) in privateDNSZone: {
-    name: 'privateDnsZone${index}'
-    scope: rgHub
-    params: {
-      name: zone
-    }
+module privateFileDnsZone 'core/DNS/private.dns.zone.bicep' = {
+  name: 'privateFileDnsZone'
+  scope: rgHub
+  params: {
+    name: privateFileDNSZone
   }
-]
+}
+
+module privateBlobDnsZone 'core/DNS/private.dns.zone.bicep' = {
+  name: 'privateBlobDnsZone'
+  scope: rgHub
+  params: {
+    name: privateBlobDNSZone
+  }
+}
 
 module bastion 'core/bastion/bastion.bicep' = {
   scope: rgHub
@@ -139,6 +143,7 @@ module privateEndpointStorageFoundry 'core/networking/private.endpoint.bicep' = 
     groupsIds: ['blob']
     serviceId: foundryDependencies.outputs.storageId
     subnetId: spokeAIFoundyVnet.outputs.subnetPEId
+    dnsZoneId: privateBlobDnsZone.outputs.id
   }
 }
 
@@ -151,6 +156,7 @@ module privateEndpointFileFoundry 'core/networking/private.endpoint.bicep' = {
     groupsIds: ['file']
     serviceId: foundryDependencies.outputs.storageId
     subnetId: spokeAIFoundyVnet.outputs.subnetPEId
+    dnsZoneId: privateFileDnsZone.outputs.id
   }
 }
 
