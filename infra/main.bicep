@@ -254,3 +254,33 @@ module jumpbox 'core/compute/jumpbox.bicep' = {
     subnetId: hubvnet.outputs.jumpboxSubnetId
   }
 }
+
+module aRecordBlobFoundry 'core/DNS/a.record.bicep' = {
+  scope: rgHub
+  name: 'aRecordBlobFoundry'
+  params: {
+    name: jumpbox.outputs.jumpboxName
+    dnsName: privateBlobDnsZone.outputs.name
+    privateEndpointIP: jumpbox.outputs.privateJumpboxIp
+  }
+}
+
+module aRecordFileFoundry 'core/DNS/a.record.bicep' = {
+  scope: rgHub
+  name: 'aRecordFileFoundry'
+  params: {
+    name: jumpbox.outputs.jumpboxName
+    dnsName: privateFileDnsZone.outputs.name
+    privateEndpointIP: jumpbox.outputs.privateJumpboxIp
+  }
+}
+
+module aRecordVaultFoundry 'core/DNS/a.record.bicep' = {
+  scope: rgHub
+  name: 'aRecordVaultFoundry'
+  params: {
+    name: jumpbox.outputs.jumpboxName
+    dnsName: privateZoneVault.outputs.name
+    privateEndpointIP: jumpbox.outputs.privateJumpboxIp
+  }
+}
