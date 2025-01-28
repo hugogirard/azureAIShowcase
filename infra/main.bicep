@@ -49,6 +49,11 @@ param enableSoftDeleteVault bool
 // @description('The admin password of the jumpbox and runner')
 // param adminPassword string
 
+var privateDNSZone = [
+  'privatelink.file.${environment().suffixes.storage}'
+  'privatelink.blob.${environment().suffixes.storage}'
+]
+
 resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: hubResourceGroupName
   location: location
@@ -72,6 +77,16 @@ module hubvnet 'core/networking/hub.bicep' = {
     subnetRunneraddressPrefix: subnetRunneraddressPrefix
   }
 }
+
+module privateDnsZone 'core/DNS/private.dns.zone.bicep' = [
+  for (zone, index) in privateDNSZone: {
+    name: 'privateDnsZone${index}'
+    scope: rgHub
+    params: {
+      name: zone
+    }
+  }
+]
 
 module bastion 'core/bastion/bastion.bicep' = {
   scope: rgHub
