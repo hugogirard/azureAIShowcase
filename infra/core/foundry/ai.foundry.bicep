@@ -5,7 +5,7 @@ param storageAccountId string
 param applicationInsightsId string
 param containerRegistryId string
 
-resource aiHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview' = {
+resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01' = {
   name: 'aihub-dev-${suffix}'
   location: location
   sku: {
@@ -18,7 +18,7 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
     // organization
     friendlyName: 'AI Hub for development'
     description: 'DEV AI Hub'
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'Enabled'
     managedNetwork: {
       isolationMode: 'AllowOnlyApprovedOutbound'
     }
