@@ -51,6 +51,8 @@ module keyvault '../vault/vault.bicep' = {
 }
 
 output storageId string = storageAI.outputs.id
+output storageName string = storageAI.outputs.name
+
 output containerRegistryId string = acr.outputs.containerRegistryId
 output keyvaultId string = keyvault.outputs.id
 output applicationInsightId string = appInsight.outputs.id

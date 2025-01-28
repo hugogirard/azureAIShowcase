@@ -41,6 +41,14 @@ param subnetPEAISpokeAddressPrefix string
 @description('Enable soft delete on the keyvault needed for AI Foundry')
 param enableSoftDeleteVault bool
 
+// @secure()
+// @description('The admin username of the jumpbox and runner')
+// param adminUsername string
+
+// @secure()
+// @description('The admin password of the jumpbox and runner')
+// param adminPassword string
+
 resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: hubResourceGroupName
   location: location
@@ -62,6 +70,16 @@ module hubvnet 'core/networking/hub.bicep' = {
     subnetJumpboxaddressPrefix: subnetJumpboxaddressPrefix
     subnetManagementFirewalladdressPrefix: subnetManagementFirewalladdressPrefix
     subnetRunneraddressPrefix: subnetRunneraddressPrefix
+  }
+}
+
+module bastion 'core/bastion/bastion.bicep' = {
+  scope: rgHub
+  name: 'bastion'
+  params: {
+    location: location
+    subnetId: hubvnet.outputs.bastionSubnetId
+    suffix: suffix
   }
 }
 
@@ -94,6 +112,30 @@ module foundryDependencies 'core/foundry/dependencies.bicep' = {
     suffix: suffix
     enableSoftDeleteVault: enableSoftDeleteVault
     workspaceId: loganalytics.outputs.id
+  }
+}
+
+module privateEndpointStorageFoundry 'core/networking/private.endpoint.bicep' = {
+  scope: rgAISpoke
+  name: 'privateEndpointStorageFoundry'
+  params: {
+    name: 'pe-blob-foundry'
+    location: location
+    groupsIds: ['blob']
+    serviceId: foundryDependencies.outputs.storageId
+    subnetId: spokeAIFoundyVnet.outputs.subnetPEId
+  }
+}
+
+module privateEndpointFileFoundry 'core/networking/private.endpoint.bicep' = {
+  scope: rgAISpoke
+  name: 'privateEndpointFileFoundry'
+  params: {
+    name: 'pe-file'
+    location: location
+    groupsIds: ['file']
+    serviceId: foundryDependencies.outputs.storageId
+    subnetId: spokeAIFoundyVnet.outputs.subnetPEId
   }
 }
 
