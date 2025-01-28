@@ -38,6 +38,9 @@ param vnetAddressAISpokePrefix string
 @description('Address prefix for the subnet that will contain the private endpoint of AI FOundry')
 param subnetPEAISpokeAddressPrefix string
 
+@description('Enable soft delete on the keyvault needed for AI Foundry')
+param enableSoftDeleteVault bool
+
 resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: hubResourceGroupName
   location: location
@@ -74,12 +77,23 @@ module spokeAIFoundyVnet 'core/networking/spoke.ai.bicep' = {
 
 var suffix = uniqueString(rgAISpoke.id)
 
+module loganalytics 'core/logging/workspace.bicep' = {
+  scope: rgAISpoke
+  name: 'loganalytics'
+  params: {
+    name: 'log-${suffix}'
+    location: location
+  }
+}
+
 module foundryDependencies 'core/foundry/dependencies.bicep' = {
   scope: rgAISpoke
   name: 'foundryDependencies'
   params: {
     location: location
     suffix: suffix
+    enableSoftDeleteVault: enableSoftDeleteVault
+    workspaceId: loganalytics.outputs.id
   }
 }
 
