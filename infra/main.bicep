@@ -41,13 +41,13 @@ param subnetPEAISpokeAddressPrefix string
 @description('Enable soft delete on the keyvault needed for AI Foundry')
 param enableSoftDeleteVault bool
 
-// @secure()
-// @description('The admin username of the jumpbox and runner')
-// param adminUsername string
+@secure()
+@description('The admin username of the jumpbox and runner')
+param adminUsername string
 
-// @secure()
-// @description('The admin password of the jumpbox and runner')
-// param adminPassword string
+@secure()
+@description('The admin password of the jumpbox and runner')
+param adminPassword string
 
 var privateFileDNSZone = 'privatelink.file.${environment().suffixes.storage}'
 var privateBlobDNSZone = 'privatelink.blob.${environment().suffixes.storage}'
@@ -241,5 +241,16 @@ module aiFoundry 'core/foundry/ai.foundry.bicep' = {
     keyVaultId: foundryDependencies.outputs.keyvaultId
     storageAccountId: foundryDependencies.outputs.storageId
     suffix: suffix
+  }
+}
+
+module jumpbox 'core/compute/jumpbox.bicep' = {
+  scope: rgHub
+  name: 'jumpbox'
+  params: {
+    location: location
+    adminPassword: adminPassword
+    adminUsername: adminUsername
+    subnetId: hubvnet.outputs.jumpboxSubnetId
   }
 }
