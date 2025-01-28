@@ -66,5 +66,18 @@ resource jumpbox 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   }
 }
 
+resource shutdown 'Microsoft.DevTestLab/schedules@2018-09-15' = {
+  name: 'shutdown-computevm-${jumpbox.name}'
+  properties: {
+    status: 'Enabled'
+    taskType: 'ComputeVmShutdownTask'
+    dailyRecurrence: {
+      time: '23:00'
+    }
+    timeZoneId: 'Eastern Standard Time'
+    targetResourceId: jumpbox.id
+  }
+}
+
 output jumpboxName string = jumpbox.name
 output privateJumpboxIp string = nic.properties.ipConfigurations[0].properties.privateIPAddress

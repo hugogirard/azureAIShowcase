@@ -199,6 +199,19 @@ module privateEndpointFileFoundry 'core/networking/private.endpoint.bicep' = {
   }
 }
 
+module privateEndpointVaultFoundry 'core/networking/private.endpoint.bicep' = {
+  scope: rgAISpoke
+  name: 'privateEndpointVaultFoundry'
+  params: {
+    name: 'pe-vault'
+    location: location
+    groupsIds: ['vault']
+    serviceId: foundryDependencies.outputs.keyvaultId
+    subnetId: spokeAIFoundyVnet.outputs.subnetPEId
+    dnsZoneId: privateZoneVault.outputs.id
+  }
+}
+
 module aiFoundry 'core/foundry/ai.foundry.bicep' = {
   scope: rgAISpoke
   name: 'aiFoundry'
