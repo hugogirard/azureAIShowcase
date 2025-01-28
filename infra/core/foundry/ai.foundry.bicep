@@ -16,9 +16,6 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01' = {
     friendlyName: 'AI Hub for development'
     description: 'DEV AI Hub'
     publicNetworkAccess: 'Enabled'
-    managedNetwork: {
-      isolationMode: 'AllowOnlyApprovedOutbound'
-    }
     // dependent resources
     keyVault: keyVaultId
     storageAccount: storageAccountId
