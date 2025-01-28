@@ -84,11 +84,31 @@ module privateFileDnsZone 'core/DNS/private.dns.zone.bicep' = {
   }
 }
 
+module vnetLinkFileDNS 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'vnetLinkFileDNS'
+  params: {
+    dnsZoneName: privateFileDnsZone.outputs.name
+    vnetId: hubvnet.outputs.vnetId
+    vnetName: hubvnet.outputs.vnetName
+  }
+}
+
 module privateBlobDnsZone 'core/DNS/private.dns.zone.bicep' = {
   name: 'privateBlobDnsZone'
   scope: rgHub
   params: {
     name: privateBlobDNSZone
+  }
+}
+
+module vnetLinkBlobDNS 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'vnetLinkBlobDNS'
+  params: {
+    dnsZoneName: privateBlobDnsZone.outputs.name
+    vnetId: hubvnet.outputs.vnetId
+    vnetName: hubvnet.outputs.vnetName
   }
 }
 
