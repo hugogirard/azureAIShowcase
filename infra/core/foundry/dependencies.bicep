@@ -38,7 +38,7 @@ module storageAI '../storage/storage.bicep' = {
   }
 }
 
-var keyVaultName = 'vault-foundry-${suffix}'
+var keyVaultName = 'vault-ai-${suffix}'
 
 module keyvault '../vault/vault.bicep' = {
   name: 'keyVaultAIFoundry'
