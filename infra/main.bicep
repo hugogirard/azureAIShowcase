@@ -52,6 +52,7 @@ param enableSoftDeleteVault bool
 var privateFileDNSZone = 'privatelink.file.${environment().suffixes.storage}'
 var privateBlobDNSZone = 'privatelink.blob.${environment().suffixes.storage}'
 var privateVaultDNSZone = 'privatelink.vaultcore.azure.net'
+var privateRegistryDNSZOne = 'privatelink.azurecr.io'
 
 resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: hubResourceGroupName
@@ -90,6 +91,24 @@ module vnetLinkFileDNS 'core/DNS/vnet.link.bicep' = {
   name: 'vnetLinkFileDNS'
   params: {
     dnsZoneName: privateFileDnsZone.outputs.name
+    vnetId: hubvnet.outputs.vnetId
+    vnetName: hubvnet.outputs.vnetName
+  }
+}
+
+module privateRegistryDnsZone 'core/DNS/private.dns.zone.bicep' = {
+  scope: rgHub
+  name: 'privateRegistryDnsZone'
+  params: {
+    name: privateRegistryDNSZOne
+  }
+}
+
+module vnetLinkACRDNS 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'vnetLinkACRDNS'
+  params: {
+    dnsZoneName: privateRegistryDnsZone.outputs.name
     vnetId: hubvnet.outputs.vnetId
     vnetName: hubvnet.outputs.vnetName
   }
