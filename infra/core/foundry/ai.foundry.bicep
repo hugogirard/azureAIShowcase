@@ -8,6 +8,9 @@ param containerRegistryId string
 resource aiHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview' = {
   name: 'aihub-dev-${suffix}'
   location: location
+  sku: {
+    name: 'Basic'
+  }
   identity: {
     type: 'SystemAssigned'
   }
@@ -15,9 +18,9 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
     // organization
     friendlyName: 'AI Hub for development'
     description: 'DEV AI Hub'
-    allowPublicAccessWhenBehindVnet: false
+    publicNetworkAccess: 'Disabled'
     managedNetwork: {
-      isolationMode: 'Disabled'
+      isolationMode: 'AllowOnlyApprovedOutbound'
     }
     // dependent resources
     keyVault: keyVaultId
