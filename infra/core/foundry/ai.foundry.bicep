@@ -15,7 +15,10 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2023-08-01-preview'
     // organization
     friendlyName: 'AI Hub for development'
     description: 'DEV AI Hub'
-
+    allowPublicAccessWhenBehindVnet: false
+    managedNetwork: {
+      isolationMode: 'Disabled'
+    }
     // dependent resources
     keyVault: keyVaultId
     storageAccount: storageAccountId
