@@ -52,7 +52,9 @@ param adminPassword string
 var privateFileDNSZone = 'privatelink.file.${environment().suffixes.storage}'
 var privateBlobDNSZone = 'privatelink.blob.${environment().suffixes.storage}'
 var privateVaultDNSZone = 'privatelink.vaultcore.azure.net'
-var privateRegistryDNSZOne = 'privatelink.azurecr.io'
+var privateRegistryDNSZone = 'privatelink.azurecr.io'
+var privateMLWorkspaceDNSZone = 'privatelink.api.azureml.ms'
+var privateNotebookDNSZone = 'privatelink.notebooks.azure.net'
 
 resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: hubResourceGroupName
@@ -100,7 +102,7 @@ module privateRegistryDnsZone 'core/DNS/private.dns.zone.bicep' = {
   scope: rgHub
   name: 'privateRegistryDnsZone'
   params: {
-    name: privateRegistryDNSZOne
+    name: privateRegistryDNSZone
   }
 }
 
@@ -241,6 +243,48 @@ module aiFoundry 'core/foundry/ai.foundry.bicep' = {
     keyVaultId: foundryDependencies.outputs.keyvaultId
     storageAccountId: foundryDependencies.outputs.storageId
     suffix: suffix
+  }
+}
+
+module mlworkspaceDNS 'core/DNS/private.dns.zone.bicep' = {
+  scope: rgHub
+  name: 'mlworkspaceDNS'
+  params: {
+    name: privateMLWorkspaceDNSZone
+  }
+}
+
+module mlnotebookDNS 'core/DNS/private.dns.zone.bicep' = {
+  scope: rgHub
+  name: 'mlnotebookDNS'
+  params: {
+    name: privateNotebookDNSZone
+  }
+}
+
+module peworkspacevnet 'core/networking/private.endpoint.bicep' = {
+  scope: rgAISpoke
+  name: 'peworkspacevnet'
+  params: {
+    name: 'pe-workspace-foundry'
+    location: location
+    dnsZoneId: mlworkspaceDNS.outputs.id
+    groupsIds: ['amlworkspace']
+    serviceId: aiFoundry.outputs.aiHubID
+    subnetId: spokeAIFoundyVnet.outputs.subnetPEId
+  }
+}
+
+module penotebookvnet 'core/networking/private.endpoint.bicep' = {
+  scope: rgAISpoke
+  name: 'penotebookvnet'
+  params: {
+    name: 'pe-notebook-foundry'
+    location: location
+    dnsZoneId: mlnotebookDNS.outputs.id
+    groupsIds: ['amlworkspace']
+    serviceId: aiFoundry.outputs.aiHubID
+    subnetId: spokeAIFoundyVnet.outputs.subnetPEId
   }
 }
 
