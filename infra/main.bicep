@@ -233,6 +233,19 @@ module privateEndpointVaultFoundry 'core/networking/private.endpoint.bicep' = {
   }
 }
 
+module privateEndpointRegistryFoundry 'core/networking/private.endpoint.bicep' = {
+  scope: rgAISpoke
+  name: 'privateEndpointRegistryFoundry'
+  params: {
+    name: 'pe-acr-foundry'
+    location: location
+    dnsZoneId: privateRegistryDnsZone.outputs.id
+    groupsIds: ['registry']
+    serviceId: foundryDependencies.outputs.containerRegistryId
+    subnetId: spokeAIFoundyVnet.outputs.subnetPEId
+  }
+}
+
 module aiFoundry 'core/foundry/ai.foundry.bicep' = {
   scope: rgAISpoke
   name: 'aiFoundry'
