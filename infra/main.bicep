@@ -288,6 +288,26 @@ module penotebookvnet 'core/networking/private.endpoint.bicep' = {
   }
 }
 
+module workspacelinkHub 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'workspacelinkHub'
+  params: {
+    dnsZoneName: mlworkspaceDNS.outputs.name
+    vnetId: hubvnet.outputs.vnetId
+    vnetName: hubvnet.outputs.vnetName
+  }
+}
+
+module notebooklinkHub 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'notebooklinkHub'
+  params: {
+    dnsZoneName: mlnotebookDNS.outputs.name
+    vnetId: hubvnet.outputs.vnetId
+    vnetName: hubvnet.outputs.vnetName
+  }
+}
+
 module jumpbox 'core/compute/jumpbox.bicep' = {
   scope: rgHub
   name: 'jumpbox'
