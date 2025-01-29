@@ -88,13 +88,23 @@ module privateFileDnsZone 'core/DNS/private.dns.zone.bicep' = {
   }
 }
 
-module vnetLinkFileDNS 'core/DNS/vnet.link.bicep' = {
+module vnetLinkFileDNSHub 'core/DNS/vnet.link.bicep' = {
   scope: rgHub
-  name: 'vnetLinkFileDNS'
+  name: 'vnetLinkFileDNSHub'
   params: {
     dnsZoneName: privateFileDnsZone.outputs.name
     vnetId: hubvnet.outputs.vnetId
     vnetName: hubvnet.outputs.vnetName
+  }
+}
+
+module vnetLinkFileDNSSpoke 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'vnetLinkFileDNSSpoke'
+  params: {
+    dnsZoneName: privateFileDnsZone.outputs.name
+    vnetId: spokeAIFoundyVnet.outputs.vnetId
+    vnetName: spokeAIFoundyVnet.outputs.vnetName
   }
 }
 
@@ -106,13 +116,23 @@ module privateRegistryDnsZone 'core/DNS/private.dns.zone.bicep' = {
   }
 }
 
-module vnetLinkACRDNS 'core/DNS/vnet.link.bicep' = {
+module vnetLinkACRDNSHub 'core/DNS/vnet.link.bicep' = {
   scope: rgHub
-  name: 'vnetLinkACRDNS'
+  name: 'vnetLinkACRDNSHub'
   params: {
     dnsZoneName: privateRegistryDnsZone.outputs.name
     vnetId: hubvnet.outputs.vnetId
     vnetName: hubvnet.outputs.vnetName
+  }
+}
+
+module vnetLinkACRDNSSpoke 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'vnetLinkACRDNSSpoke'
+  params: {
+    dnsZoneName: privateRegistryDnsZone.outputs.name
+    vnetId: spokeAIFoundyVnet.outputs.vnetId
+    vnetName: spokeAIFoundyVnet.outputs.vnetName
   }
 }
 
@@ -124,13 +144,23 @@ module privateBlobDnsZone 'core/DNS/private.dns.zone.bicep' = {
   }
 }
 
-module vnetLinkBlobDNS 'core/DNS/vnet.link.bicep' = {
+module vnetLinkBlobDNSHub 'core/DNS/vnet.link.bicep' = {
   scope: rgHub
-  name: 'vnetLinkBlobDNS'
+  name: 'vnetLinkBlobDNSHub'
   params: {
     dnsZoneName: privateBlobDnsZone.outputs.name
     vnetId: hubvnet.outputs.vnetId
     vnetName: hubvnet.outputs.vnetName
+  }
+}
+
+module vnetLinkBlobDNSSpoke 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'vnetLinkBlobDNSSpoke'
+  params: {
+    dnsZoneName: privateBlobDnsZone.outputs.name
+    vnetId: spokeAIFoundyVnet.outputs.vnetId
+    vnetName: spokeAIFoundyVnet.outputs.vnetName
   }
 }
 
@@ -142,13 +172,23 @@ module privateZoneVault 'core/DNS/private.dns.zone.bicep' = {
   }
 }
 
-module vnetLinkVaultDNS 'core/DNS/vnet.link.bicep' = {
+module vnetLinkVaultDNSHub 'core/DNS/vnet.link.bicep' = {
   scope: rgHub
-  name: 'vnetLinkVaultDNS'
+  name: 'vnetLinkVaultDNSHub'
   params: {
     dnsZoneName: privateZoneVault.outputs.name
     vnetId: hubvnet.outputs.vnetId
     vnetName: hubvnet.outputs.vnetName
+  }
+}
+
+module vnetLinkVaultDNSSpoke 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'vnetLinkVaultDNSSpoke'
+  params: {
+    dnsZoneName: privateZoneVault.outputs.name
+    vnetId: spokeAIFoundyVnet.outputs.vnetId
+    vnetName: spokeAIFoundyVnet.outputs.vnetName
   }
 }
 
@@ -328,6 +368,16 @@ module notebooklinkHub 'core/DNS/vnet.link.bicep' = {
     dnsZoneName: mlnotebookDNS.outputs.name
     vnetId: hubvnet.outputs.vnetId
     vnetName: hubvnet.outputs.vnetName
+  }
+}
+
+module notebooklinkSpoke 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'notebooklinkSpoke'
+  params: {
+    dnsZoneName: mlnotebookDNS.outputs.name
+    vnetId: spokeAIFoundyVnet.outputs.vnetId
+    vnetName: spokeAIFoundyVnet.outputs.vnetName
   }
 }
 
