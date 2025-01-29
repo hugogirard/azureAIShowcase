@@ -211,7 +211,7 @@ module privateEndpointFileFoundry 'core/networking/private.endpoint.bicep' = {
   scope: rgAISpoke
   name: 'privateEndpointFileFoundry'
   params: {
-    name: 'pe-file'
+    name: 'pe-file-foundry'
     location: location
     groupsIds: ['file']
     serviceId: foundryDependencies.outputs.storageId
@@ -224,7 +224,7 @@ module privateEndpointVaultFoundry 'core/networking/private.endpoint.bicep' = {
   scope: rgAISpoke
   name: 'privateEndpointVaultFoundry'
   params: {
-    name: 'pe-vault'
+    name: 'pe-vault-foundry'
     location: location
     groupsIds: ['vault']
     serviceId: foundryDependencies.outputs.keyvaultId
