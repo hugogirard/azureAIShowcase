@@ -298,6 +298,16 @@ module workspacelinkHub 'core/DNS/vnet.link.bicep' = {
   }
 }
 
+module workspacelinkSpoke 'core/DNS/vnet.link.bicep' = {
+  scope: rgHub
+  name: 'workspacelinkSpoke'
+  params: {
+    dnsZoneName: mlworkspaceDNS.outputs.name
+    vnetId: spokeAIFoundyVnet.outputs.vnetId
+    vnetName: spokeAIFoundyVnet.outputs.vnetName
+  }
+}
+
 module notebooklinkHub 'core/DNS/vnet.link.bicep' = {
   scope: rgHub
   name: 'notebooklinkHub'
@@ -345,6 +355,26 @@ module aRecordVaultFoundry 'core/DNS/a.record.bicep' = {
   params: {
     name: jumpbox.outputs.jumpboxName
     dnsName: privateZoneVault.outputs.name
+    privateEndpointIP: jumpbox.outputs.privateJumpboxIp
+  }
+}
+
+module aRecordWorkspace 'core/DNS/a.record.bicep' = {
+  scope: rgHub
+  name: 'aRecordWorkspace'
+  params: {
+    name: jumpbox.outputs.jumpboxName
+    dnsName: mlworkspaceDNS.outputs.name
+    privateEndpointIP: jumpbox.outputs.privateJumpboxIp
+  }
+}
+
+module aRecordNotebook 'core/DNS/a.record.bicep' = {
+  scope: rgHub
+  name: 'aRecordNotebook'
+  params: {
+    name: jumpbox.outputs.jumpboxName
+    dnsName: mlnotebookDNS.outputs.name
     privateEndpointIP: jumpbox.outputs.privateJumpboxIp
   }
 }
