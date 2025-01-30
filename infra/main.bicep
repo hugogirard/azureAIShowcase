@@ -94,6 +94,19 @@ module firewall 'core/firewall/firewall.bicep' = if (deployAzureFirewall) {
   }
 }
 
+module routeTableFirewallSpokeAI 'core/networking/route.table.bicep' = {
+  scope: rgAISpoke
+  name: 'routeTableFirewall'
+  params: {
+    location: location
+    addressPrefix: '0.0.0.0/0'
+    nextHopIpAddress: 'VirtualAppliance'
+    nextHopType: firewall.outputs.privateIP
+    routeName: 'outbound-to-firewall'
+    routeTableName: 'rt-firewall'
+  }
+}
+
 module privateFileDnsZone 'core/DNS/private.dns.zone.bicep' = {
   name: 'privateFileDnsZone'
   scope: rgHub
