@@ -225,7 +225,7 @@ module hubToAISpoke 'core/networking/peering.bicep' = {
 }
 
 module AISpokeToHub 'core/networking/peering.bicep' = {
-  scope: rgHub
+  scope: rgAISpoke
   name: 'AISpokeToHub'
   params: {
     vnetParentName: spokeAIFoundyVnet.outputs.vnetName
