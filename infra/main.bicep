@@ -212,6 +212,18 @@ module spokeAIFoundyVnet 'core/networking/spoke.ai.bicep' = {
   }
 }
 
+// Peering VNETS
+
+module hubToAISpoke 'core/networking/peering.bicep' = {
+  scope: rgHub
+  name: 'hubToAISpoke'
+  params: {
+    vnetParentName: hubvnet.outputs.vnetName
+    vnetRemoteId: spokeAIFoundyVnet.outputs.vnetId
+    vnetRemoteName: spokeAIFoundyVnet.outputs.vnetName
+  }
+}
+
 var suffix = uniqueString(rgAISpoke.id)
 
 module loganalytics 'core/logging/workspace.bicep' = {
