@@ -41,6 +41,9 @@ param subnetPEAISpokeAddressPrefix string
 @description('Enable soft delete on the keyvault needed for AI Foundry')
 param enableSoftDeleteVault bool
 
+@description('Deploy Azure Firewall - Basic')
+param deployAzureFirewall bool
+
 @secure()
 @description('The admin username of the jumpbox and runner')
 param adminUsername string
@@ -77,6 +80,17 @@ module hubvnet 'core/networking/hub.bicep' = {
     subnetJumpboxaddressPrefix: subnetJumpboxaddressPrefix
     subnetManagementFirewalladdressPrefix: subnetManagementFirewalladdressPrefix
     subnetRunneraddressPrefix: subnetRunneraddressPrefix
+  }
+}
+
+module firewall 'core/firewall/firewall.bicep' = {
+  scope: rgHub
+  name: 'firewall'
+  params: {
+    location: location
+    managementSubnetId: hubvnet.outputs.managementFirewallSubnetId
+    subnetId: hubvnet.outputs.firewallSubnetId
+    suffix: suffix
   }
 }
 
