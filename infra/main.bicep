@@ -83,7 +83,7 @@ module hubvnet 'core/networking/hub.bicep' = {
   }
 }
 
-module firewall 'core/firewall/firewall.bicep' = {
+module firewall 'core/firewall/firewall.bicep' = if (deployAzureFirewall) {
   scope: rgHub
   name: 'firewall'
   params: {
