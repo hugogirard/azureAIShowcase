@@ -1,5 +1,6 @@
 param name string
 param location string
+param publicNetworkAccess bool
 param tags object
 
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
@@ -42,11 +43,12 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     keyPolicy: {
       keyExpirationPeriodInDays: 7
     }
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
     largeFileSharesState: 'Disabled'
     minimumTlsVersion: 'TLS1_2'
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Deny'
+      defaultAction: publicNetworkAccess ? 'Allow' : 'Deny'
     }
     supportsHttpsTrafficOnly: true
   }

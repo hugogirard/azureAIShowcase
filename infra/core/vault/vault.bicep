@@ -1,5 +1,6 @@
 param name string
 param enableSoftDeleteVault bool
+param publicNetworkAccess bool
 param location string
 param tags object
 
@@ -15,10 +16,10 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enableSoftDelete: enableSoftDeleteVault
     enableRbacAuthorization: true
     enablePurgeProtection: true
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
     networkAcls: {
       bypass: 'AzureServices'
-      defaultAction: 'Deny'
+      defaultAction: publicNetworkAccess ? 'Allow' : 'Deny'
     }
     sku: {
       family: 'A'

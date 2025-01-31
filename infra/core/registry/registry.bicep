@@ -1,5 +1,6 @@
 param name string
 param location string
+param publicNetworkAccess bool
 param tags object
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
@@ -14,7 +15,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' =
     dataEndpointEnabled: false
     networkRuleBypassOptions: 'AzureServices'
     networkRuleSet: {
-      defaultAction: 'Deny'
+      defaultAction: publicNetworkAccess ? 'Allow' : 'Deny'
     }
     policies: {
       quarantinePolicy: {
@@ -29,7 +30,7 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-09-01' =
         type: 'Notary'
       }
     }
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
     zoneRedundancy: 'Disabled'
   }
 }

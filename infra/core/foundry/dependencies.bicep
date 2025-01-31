@@ -2,6 +2,7 @@
 param suffix string
 param location string
 param enableSoftDeleteVault bool
+param publicNetworkAccess bool
 param workspaceId string
 
 var tags = {
@@ -24,6 +25,7 @@ module acr '../registry/registry.bicep' = {
     name: 'acrfoundry${suffix}'
     location: location
     tags: tags
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 
@@ -35,6 +37,7 @@ module storageAI '../storage/storage.bicep' = {
     name: storageNameCleaned
     location: location
     tags: tags
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 
@@ -47,6 +50,7 @@ module keyvault '../vault/vault.bicep' = {
     location: location
     tags: tags
     enableSoftDeleteVault: enableSoftDeleteVault
+    publicNetworkAccess: publicNetworkAccess
   }
 }
 

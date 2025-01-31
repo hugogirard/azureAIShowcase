@@ -2,6 +2,7 @@ param location string
 param suffix string
 param keyVaultId string
 param storageAccountId string
+param publicNetworkAccess bool
 param applicationInsightsId string
 param containerRegistryId string
 
@@ -23,11 +24,11 @@ resource aiHub 'Microsoft.MachineLearningServices/workspaces@2024-10-01' = {
     // organization
     friendlyName: 'AI Hub for development'
     description: 'DEV AI Hub'
-    publicNetworkAccess: 'Disabled'
-    allowPublicAccessWhenBehindVnet: false
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
+    allowPublicAccessWhenBehindVnet: publicNetworkAccess ? true : false
     serverlessComputeSettings: null // This reference implementation uses a managed virtual network instead of a BYO subnet
     managedNetwork: {
-      isolationMode: 'AllowOnlyApprovedOutbound'
+      isolationMode: publicNetworkAccess ? 'Disabled' : 'AllowOnlyApprovedOutbound'
       status: {
         sparkReady: false
         status: 'Active'
