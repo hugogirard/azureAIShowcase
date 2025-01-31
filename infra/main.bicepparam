@@ -24,7 +24,7 @@ param subnetPEAISpokeAddressPrefix = '10.1.1.0/24'
 
 param enableSoftDeleteVault = false
 
-param deployAzureFirewall = true
+param deployAzureFirewall = false
 
 param adminPassword = ''
 
