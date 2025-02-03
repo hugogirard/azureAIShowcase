@@ -4,7 +4,7 @@ param hubResourceGroupName = 'rg-hub-ai'
 
 param hubVnetAddressPrefix = '10.0.0.0/16'
 
-param location = 'canadacentral'
+param location = 'eastus'
 
 param subnetBastionPrefix = '10.0.5.0/26'
 
