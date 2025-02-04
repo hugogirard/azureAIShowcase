@@ -7,7 +7,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: name
   location: location
   sku: {
-    name: 'Standard_ZRS'
+    name: 'Standard_LRS'
   }
   tags: tags
   kind: 'StorageV2'
