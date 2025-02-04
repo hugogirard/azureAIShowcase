@@ -4,7 +4,7 @@ param hubResourceGroupName = 'rg-hub-ai'
 
 param hubVnetAddressPrefix = '10.0.0.0/16'
 
-param location = 'eastus'
+param location = 'canadaeast'
 
 param subnetBastionPrefix = '10.0.5.0/26'
 
@@ -24,9 +24,9 @@ param subnetPEAISpokeAddressPrefix = '10.1.1.0/24'
 
 param enableSoftDeleteVault = false
 
-param deployHub = false
+param deployHub = true
 
-param privateHubFoundry = false
+param privateHubFoundry = true
 
 param deployAzureFirewall = false
 
