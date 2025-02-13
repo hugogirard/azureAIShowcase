@@ -65,18 +65,25 @@ var privateRegistryDNSZone = 'privatelink.azurecr.io'
 var privateMLWorkspaceDNSZone = 'privatelink.api.azureml.ms'
 var privateNotebookDNSZone = 'privatelink.notebooks.azure.net'
 
-resource rgHub 'Microsoft.Resources/resourceGroups@2022-09-01' = {
-  name: hubResourceGroupName
-  location: location
+module rgHub 'br:mcr.microsoft.com/bicep/avm/res/resources/resource-group:0.4.1' = {
+  name: 'rgHub'
+  params: {
+    name: hubResourceGroupName
+    location: location
+  }
 }
 
-resource rgAISpoke 'Microsoft.Resources/resourceGroups@2022-09-01' = {
-  name: spokeAIResourceGroupName
-  location: location
+module rgAISpoke 'br:mcr.microsoft.com/bicep/avm/res/resources/resource-group:0.4.1' = {
+  name: 'rgAISpoke'
+  params: {
+    name: spokeAIResourceGroupName
+    location: location
+  }
 }
 
 module hubvnet 'core/networking/hub.bicep' = if (deployHub) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'hubvnet'
   params: {
     addressPrefixe: hubVnetAddressPrefix
@@ -90,7 +97,8 @@ module hubvnet 'core/networking/hub.bicep' = if (deployHub) {
 }
 
 module firewall 'core/firewall/firewall.bicep' = if (deployAzureFirewall && deployHub) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'firewall'
   params: {
     location: location
@@ -101,7 +109,8 @@ module firewall 'core/firewall/firewall.bicep' = if (deployAzureFirewall && depl
 }
 
 module routeTableFirewallSpokeAI 'core/networking/route.table.bicep' = if (deployAzureFirewall && deployHub) {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
+  dependsOn: [rgAISpoke]
   name: 'routeTableFirewall'
   params: {
     location: location
@@ -115,14 +124,16 @@ module routeTableFirewallSpokeAI 'core/networking/route.table.bicep' = if (deplo
 
 module privateFileDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
   name: 'privateFileDnsZone'
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   params: {
     name: privateFileDNSZone
   }
 }
 
 module vnetLinkFileDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'vnetLinkFileDNSHub'
   params: {
     dnsZoneName: privateFileDnsZone.outputs.name
@@ -132,7 +143,8 @@ module vnetLinkFileDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateH
 }
 
 module vnetLinkFileDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'vnetLinkFileDNSSpoke'
   params: {
     dnsZoneName: privateFileDnsZone.outputs.name
@@ -142,7 +154,8 @@ module vnetLinkFileDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && privat
 }
 
 module privateRegistryDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'privateRegistryDnsZone'
   params: {
     name: privateRegistryDNSZone
@@ -150,7 +163,8 @@ module privateRegistryDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub 
 }
 
 module vnetLinkACRDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'vnetLinkACRDNSHub'
   params: {
     dnsZoneName: privateRegistryDnsZone.outputs.name
@@ -160,7 +174,8 @@ module vnetLinkACRDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHu
 }
 
 module vnetLinkACRDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'vnetLinkACRDNSSpoke'
   params: {
     dnsZoneName: privateRegistryDnsZone.outputs.name
@@ -171,14 +186,16 @@ module vnetLinkACRDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && private
 
 module privateBlobDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
   name: 'privateBlobDnsZone'
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   params: {
     name: privateBlobDNSZone
   }
 }
 
 module vnetLinkBlobDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'vnetLinkBlobDNSHub'
   params: {
     dnsZoneName: privateBlobDnsZone.outputs.name
@@ -188,7 +205,8 @@ module vnetLinkBlobDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateH
 }
 
 module vnetLinkBlobDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'vnetLinkBlobDNSSpoke'
   params: {
     dnsZoneName: privateBlobDnsZone.outputs.name
@@ -198,7 +216,8 @@ module vnetLinkBlobDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && privat
 }
 
 module privateZoneVault 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'privateZoneVault'
   params: {
     name: privateVaultDNSZone
@@ -206,7 +225,8 @@ module privateZoneVault 'core/DNS/private.dns.zone.bicep' = if (deployHub && pri
 }
 
 module vnetLinkVaultDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'vnetLinkVaultDNSHub'
   params: {
     dnsZoneName: privateZoneVault.outputs.name
@@ -216,7 +236,8 @@ module vnetLinkVaultDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && private
 }
 
 module vnetLinkVaultDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'vnetLinkVaultDNSSpoke'
   params: {
     dnsZoneName: privateZoneVault.outputs.name
@@ -226,7 +247,8 @@ module vnetLinkVaultDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && priva
 }
 
 module bastion 'core/bastion/bastion.bicep' = if (deployHub) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'bastion'
   params: {
     location: location
@@ -236,7 +258,8 @@ module bastion 'core/bastion/bastion.bicep' = if (deployHub) {
 }
 
 module spokeAIFoundyVnet 'core/networking/spoke.ai.bicep' = if (privateHubFoundry) {
-  scope: rgAISpoke
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'spokeAIFoundyVnet'
   params: {
     location: location
@@ -248,7 +271,8 @@ module spokeAIFoundyVnet 'core/networking/spoke.ai.bicep' = if (privateHubFoundr
 // Peering VNETS
 
 module hubToAISpoke 'core/networking/peering.bicep' = if (deployHub) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'hubToAISpoke'
   params: {
     vnetParentName: hubvnet.outputs.vnetName
@@ -258,7 +282,8 @@ module hubToAISpoke 'core/networking/peering.bicep' = if (deployHub) {
 }
 
 module AISpokeToHub 'core/networking/peering.bicep' = if (deployHub) {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
+  dependsOn: [rgAISpoke]
   name: 'AISpokeToHub'
   params: {
     vnetParentName: spokeAIFoundyVnet.outputs.vnetName
@@ -267,10 +292,10 @@ module AISpokeToHub 'core/networking/peering.bicep' = if (deployHub) {
   }
 }
 
-var suffix = uniqueString(rgAISpoke.id)
+var suffix = uniqueString(rgAISpoke.outputs.resourceId)
 
 module loganalytics 'core/logging/workspace.bicep' = {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'loganalytics'
   params: {
     name: 'log-${suffix}'
@@ -279,7 +304,7 @@ module loganalytics 'core/logging/workspace.bicep' = {
 }
 
 module foundryDependencies 'core/foundry/dependencies.bicep' = {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'foundryDependencies'
   params: {
     location: location
@@ -291,7 +316,7 @@ module foundryDependencies 'core/foundry/dependencies.bicep' = {
 }
 
 module privateEndpointStorageFoundry 'core/networking/private.endpoint.bicep' = if (privateHubFoundry) {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'privateEndpointStorageFoundry'
   params: {
     name: 'pe-blob-foundry'
@@ -304,7 +329,7 @@ module privateEndpointStorageFoundry 'core/networking/private.endpoint.bicep' = 
 }
 
 module privateEndpointFileFoundry 'core/networking/private.endpoint.bicep' = if (privateHubFoundry) {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'privateEndpointFileFoundry'
   params: {
     name: 'pe-file-foundry'
@@ -317,7 +342,7 @@ module privateEndpointFileFoundry 'core/networking/private.endpoint.bicep' = if 
 }
 
 module privateEndpointVaultFoundry 'core/networking/private.endpoint.bicep' = if (privateHubFoundry) {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'privateEndpointVaultFoundry'
   params: {
     name: 'pe-vault-foundry'
@@ -330,7 +355,7 @@ module privateEndpointVaultFoundry 'core/networking/private.endpoint.bicep' = if
 }
 
 module privateEndpointRegistryFoundry 'core/networking/private.endpoint.bicep' = if (privateHubFoundry) {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'privateEndpointRegistryFoundry'
   params: {
     name: 'pe-acr-foundry'
@@ -343,7 +368,7 @@ module privateEndpointRegistryFoundry 'core/networking/private.endpoint.bicep' =
 }
 
 module aiFoundry 'core/foundry/ai.foundry.bicep' = {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'aiFoundry'
   params: {
     location: location
@@ -357,7 +382,8 @@ module aiFoundry 'core/foundry/ai.foundry.bicep' = {
 }
 
 module mlworkspaceDNS 'core/DNS/private.dns.zone.bicep' = if (privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'mlworkspaceDNS'
   params: {
     name: privateMLWorkspaceDNSZone
@@ -365,7 +391,8 @@ module mlworkspaceDNS 'core/DNS/private.dns.zone.bicep' = if (privateHubFoundry)
 }
 
 module mlnotebookDNS 'core/DNS/private.dns.zone.bicep' = if (privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'mlnotebookDNS'
   params: {
     name: privateNotebookDNSZone
@@ -373,7 +400,7 @@ module mlnotebookDNS 'core/DNS/private.dns.zone.bicep' = if (privateHubFoundry) 
 }
 
 module peworkspacevnet 'core/networking/private.endpoint.bicep' = if (privateHubFoundry) {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'peworkspacevnet'
   params: {
     name: 'pe-workspace-foundry'
@@ -386,7 +413,7 @@ module peworkspacevnet 'core/networking/private.endpoint.bicep' = if (privateHub
 }
 
 module penotebookvnet 'core/networking/private.endpoint.bicep' = if (privateHubFoundry) {
-  scope: rgAISpoke
+  scope: resourceGroup(spokeAIResourceGroupName)
   name: 'penotebookvnet'
   params: {
     name: 'pe-notebook-foundry'
@@ -399,7 +426,8 @@ module penotebookvnet 'core/networking/private.endpoint.bicep' = if (privateHubF
 }
 
 module workspacelinkHub 'core/DNS/vnet.link.bicep' = if (privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'workspacelinkHub'
   params: {
     dnsZoneName: mlworkspaceDNS.outputs.name
@@ -409,7 +437,8 @@ module workspacelinkHub 'core/DNS/vnet.link.bicep' = if (privateHubFoundry) {
 }
 
 module workspacelinkSpoke 'core/DNS/vnet.link.bicep' = if (privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'workspacelinkSpoke'
   params: {
     dnsZoneName: mlworkspaceDNS.outputs.name
@@ -419,7 +448,8 @@ module workspacelinkSpoke 'core/DNS/vnet.link.bicep' = if (privateHubFoundry) {
 }
 
 module notebooklinkHub 'core/DNS/vnet.link.bicep' = if (privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'notebooklinkHub'
   params: {
     dnsZoneName: mlnotebookDNS.outputs.name
@@ -429,7 +459,8 @@ module notebooklinkHub 'core/DNS/vnet.link.bicep' = if (privateHubFoundry) {
 }
 
 module notebooklinkSpoke 'core/DNS/vnet.link.bicep' = if (privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'notebooklinkSpoke'
   params: {
     dnsZoneName: mlnotebookDNS.outputs.name
@@ -439,7 +470,8 @@ module notebooklinkSpoke 'core/DNS/vnet.link.bicep' = if (privateHubFoundry) {
 }
 
 module jumpbox 'core/compute/jumpbox.bicep' = if (deployHub) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'jumpbox'
   params: {
     location: location
@@ -450,7 +482,8 @@ module jumpbox 'core/compute/jumpbox.bicep' = if (deployHub) {
 }
 
 module aRecordBlobFoundry 'core/DNS/a.record.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'aRecordBlobFoundry'
   params: {
     name: jumpbox.outputs.jumpboxName
@@ -460,7 +493,8 @@ module aRecordBlobFoundry 'core/DNS/a.record.bicep' = if (deployHub && privateHu
 }
 
 module aRecordFileFoundry 'core/DNS/a.record.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'aRecordFileFoundry'
   params: {
     name: jumpbox.outputs.jumpboxName
@@ -470,7 +504,8 @@ module aRecordFileFoundry 'core/DNS/a.record.bicep' = if (deployHub && privateHu
 }
 
 module aRecordVaultFoundry 'core/DNS/a.record.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'aRecordVaultFoundry'
   params: {
     name: jumpbox.outputs.jumpboxName
@@ -480,7 +515,8 @@ module aRecordVaultFoundry 'core/DNS/a.record.bicep' = if (deployHub && privateH
 }
 
 module aRecordWorkspace 'core/DNS/a.record.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'aRecordWorkspace'
   params: {
     name: jumpbox.outputs.jumpboxName
@@ -490,7 +526,8 @@ module aRecordWorkspace 'core/DNS/a.record.bicep' = if (deployHub && privateHubF
 }
 
 module aRecordNotebook 'core/DNS/a.record.bicep' = if (deployHub && privateHubFoundry) {
-  scope: rgHub
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
   name: 'aRecordNotebook'
   params: {
     name: jumpbox.outputs.jumpboxName
