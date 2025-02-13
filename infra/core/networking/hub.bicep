@@ -6,26 +6,24 @@ param subnetJumpboxaddressPrefix string
 param subnetRunneraddressPrefix string
 param subnetBastionPrefix string
 
-resource nsgJumpbox 'Microsoft.Network/networkSecurityGroups@2021-05-01' = {
-  name: 'nsg-jumpbox'
-  location: location
-  properties: {
-    securityRules: []
+module nsgJumpbox 'br/public:avm/res/network/network-security-group:0.5.0' = {
+  name: 'nsgJumpbox'
+  params: {
+    name: 'nsgJumpbox'
   }
 }
 
-resource nsgRunner 'Microsoft.Network/networkSecurityGroups@2021-05-01' = {
-  name: 'nsg-runner'
-  location: location
-  properties: {
-    securityRules: []
+module nsgRunner 'br/public:avm/res/network/network-security-group:0.5.0' = {
+  name: 'nsgRunner'
+  params: {
+    name: 'nsgRunner'
   }
 }
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
-  name: 'nsg-bastion'
-  location: location
-  properties: {
+module nsgBastion 'br/public:avm/res/network/network-security-group:0.5.0' = {
+  name: 'nsgBastion'
+  params: {
+    name: 'nsg-bastion'
     securityRules: [
       {
         name: 'AllowHttpsInBound'
@@ -173,60 +171,45 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2022-07-01' = {
   }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
+module vnet 'br/public:avm/res/network/virtual-network:0.5.2' = {
   name: 'vnet-hub'
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        addressPrefixe
-      ]
-    }
+  params: {
+    name: 'vnet-hub'
+    addressPrefixes: [
+      addressPrefixe
+    ]
     subnets: [
       {
         name: 'AzureFirewallSubnet'
-        properties: {
-          addressPrefix: subnetFirewalladdressPrefix
-        }
+        addressPrefix: subnetFirewalladdressPrefix
       }
       {
         name: 'AzureFirewallManagementSubnet'
-        properties: {
-          addressPrefix: subnetManagementFirewalladdressPrefix
-        }
+        addressPrefix: subnetManagementFirewalladdressPrefix
       }
       {
         name: 'snet-jumpbox'
-        properties: {
-          addressPrefix: subnetJumpboxaddressPrefix
-          networkSecurityGroup: {
-            id: nsgJumpbox.id
-          }
-        }
+        addressPrefix: subnetJumpboxaddressPrefix
+        networkSecurityGroupResourceId: nsgJumpbox.outputs.resourceId
       }
       {
         name: 'snet-runner'
-        properties: {
-          addressPrefix: subnetRunneraddressPrefix
-          networkSecurityGroup: {
-            id: nsgRunner.id
-          }
-        }
+        addressPrefix: subnetRunneraddressPrefix
+        networkSecurityGroupResourceId: nsgRunner.outputs.resourceId
       }
       {
         name: 'AzureBastionSubnet'
-        properties: {
-          addressPrefix: subnetBastionPrefix
-        }
+        addressPrefix: subnetBastionPrefix
+        networkSecurityGroupResourceId: nsgBastion.outputs.resourceId
       }
     ]
   }
 }
 
 output vnetName string = vnet.name
-output firewallSubnetId string = vnet.properties.subnets[0].id
-output managementFirewallSubnetId string = vnet.properties.subnets[1].id
-output jumpboxSubnetId string = vnet.properties.subnets[2].id
-output runnerSubnetId string = vnet.properties.subnets[3].id
-output bastionSubnetId string = vnet.properties.subnets[4].id
-output vnetId string = vnet.id
+output firewallSubnetId string = vnet.outputs.subnetResourceIds[0].id
+output managementFirewallSubnetId string = vnet.outputs.subnetResourceIds[1].id
+output jumpboxSubnetId string = vnet.outputs.subnetResourceIds[2].id
+output runnerSubnetId string = vnet.outputs.subnetResourceIds[3].id
+output bastionSubnetId string = vnet.outputs.subnetResourceIds[4].id
+output vnetId string = vnet.outputs.resourceId

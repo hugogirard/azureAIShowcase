@@ -19,44 +19,44 @@ module appInsight '../logging/appinsight.bicep' = {
   }
 }
 
-module acr '../registry/registry.bicep' = {
+module acr 'br/public:avm/res/container-registry/registry:0.8.5' = {
   name: 'registryAIFoundry'
   params: {
     name: 'acrfoundry${suffix}'
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
     location: location
     tags: tags
-    publicNetworkAccess: publicNetworkAccess
   }
 }
 
 var storageNameCleaned = replace('strai${suffix}', '-', '')
 
-module storageAI '../storage/storage.bicep' = {
+module storageAI 'br/public:avm/res/storage/storage-account:0.17.3' = {
   name: 'storageAIFoundry'
   params: {
     name: storageNameCleaned
     location: location
     tags: tags
-    publicNetworkAccess: publicNetworkAccess
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
   }
 }
 
 var keyVaultName = 'vault-aif-${suffix}'
 
-module keyvault '../vault/vault.bicep' = {
+module keyvault 'br/public:avm/res/key-vault/vault:0.11.3' = {
   name: 'keyVaultAIFoundry'
   params: {
     name: keyVaultName
     location: location
     tags: tags
-    enableSoftDeleteVault: enableSoftDeleteVault
-    publicNetworkAccess: publicNetworkAccess
+    enableSoftDelete: enableSoftDeleteVault
+    publicNetworkAccess: publicNetworkAccess ? 'Enabled' : 'Disabled'
   }
 }
 
-output storageId string = storageAI.outputs.id
+output storageId string = storageAI.outputs.resourceId
 output storageName string = storageAI.outputs.name
 
-output containerRegistryId string = acr.outputs.containerRegistryId
-output keyvaultId string = keyvault.outputs.id
+output containerRegistryId string = acr.outputs.resourceId
+output keyvaultId string = keyvault.outputs.resourceId
 output applicationInsightId string = appInsight.outputs.id

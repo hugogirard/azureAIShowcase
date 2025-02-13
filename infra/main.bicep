@@ -102,34 +102,63 @@ module firewall 'core/firewall/firewall.bicep' = if (deployAzureFirewall && depl
   name: 'firewall'
   params: {
     location: location
-    managementSubnetId: hubvnet.outputs.managementFirewallSubnetId
-    subnetId: hubvnet.outputs.firewallSubnetId
+    vnetId: hubvnet.outputs.vnetId
+    // managementSubnetId: hubvnet.outputs.managementFirewallSubnetId
+    // subnetId: hubvnet.outputs.firewallSubnetId
     suffix: suffix
   }
 }
 
-module routeTableFirewallSpokeAI 'core/networking/route.table.bicep' = if (deployAzureFirewall && deployHub) {
+module routeTableFirewallSpokeAI 'br/public:avm/res/network/route-table:0.4.0' = if (deployAzureFirewall && deployHub) {
   scope: resourceGroup(spokeAIResourceGroupName)
-  dependsOn: [rgAISpoke]
-  name: 'routeTableFirewall'
+  name: 'routeTableFirewallSpokeAI'
   params: {
+    name: 'rt-firewall'
     location: location
-    addressPrefix: '0.0.0.0/0'
-    nextHopIpAddress: 'VirtualAppliance'
-    nextHopType: firewall.outputs.privateIP
-    routeName: 'outbound-to-firewall'
-    routeTableName: 'rt-firewall'
+    routes: [
+      {
+        name: 'outbound-to-firewall'
+        properties: {
+          nextHopType: 'VirtualAppliance'
+          addressPrefix: '0.0.0.0/0'
+          nextHopIpAddress: firewall.outputs.privateIP
+        }
+      }
+    ]
   }
 }
 
-module privateFileDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
+// module routeTableFirewallSpokeAI 'core/networking/route.table.bicep' = if (deployAzureFirewall && deployHub) {
+//   scope: resourceGroup(spokeAIResourceGroupName)
+//   dependsOn: [rgAISpoke]
+//   name: 'routeTableFirewall'
+//   params: {
+//     location: location
+//     addressPrefix: '0.0.0.0/0'
+//     nextHopIpAddress: 'VirtualAppliance'
+//     nextHopType: firewall.outputs.privateIP
+//     routeName: 'outbound-to-firewall'
+//     routeTableName: 'rt-firewall'
+//   }
+// }
+
+module privateFileDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.0' = if (deployHub && privateHubFoundry) {
   name: 'privateFileDnsZone'
-  scope: resourceGroup(hubResourceGroupName)
-  dependsOn: [rgHub]
   params: {
     name: privateFileDNSZone
   }
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
 }
+
+// module privateFileDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
+//   name: 'privateFileDnsZone'
+//   scope: resourceGroup(hubResourceGroupName)
+//   dependsOn: [rgHub]
+//   params: {
+//     name: privateFileDNSZone
+//   }
+// }
 
 module vnetLinkFileDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
   scope: resourceGroup(hubResourceGroupName)
@@ -153,14 +182,23 @@ module vnetLinkFileDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && privat
   }
 }
 
-module privateRegistryDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
-  scope: resourceGroup(hubResourceGroupName)
-  dependsOn: [rgHub]
+module privateRegistryDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.0' = if (deployHub && privateHubFoundry) {
   name: 'privateRegistryDnsZone'
   params: {
     name: privateRegistryDNSZone
   }
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
 }
+
+// module privateRegistryDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
+//   scope: resourceGroup(hubResourceGroupName)
+//   dependsOn: [rgHub]
+//   name: 'privateRegistryDnsZone'
+//   params: {
+//     name: privateRegistryDNSZone
+//   }
+// }
 
 module vnetLinkACRDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
   scope: resourceGroup(hubResourceGroupName)
@@ -184,14 +222,23 @@ module vnetLinkACRDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && private
   }
 }
 
-module privateBlobDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
+module privateBlobDnsZone 'br/public:avm/res/network/private-dns-zone:0.7.0' = if (deployHub && privateHubFoundry) {
   name: 'privateBlobDnsZone'
-  scope: resourceGroup(hubResourceGroupName)
-  dependsOn: [rgHub]
   params: {
     name: privateBlobDNSZone
   }
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
 }
+
+// module privateBlobDnsZone 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
+//   name: 'privateBlobDnsZone'
+//   scope: resourceGroup(hubResourceGroupName)
+//   dependsOn: [rgHub]
+//   params: {
+//     name: privateBlobDNSZone
+//   }
+// }
 
 module vnetLinkBlobDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
   scope: resourceGroup(hubResourceGroupName)
@@ -215,14 +262,23 @@ module vnetLinkBlobDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && privat
   }
 }
 
-module privateZoneVault 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
-  scope: resourceGroup(hubResourceGroupName)
-  dependsOn: [rgHub]
+module privateZoneVault 'br/public:avm/res/network/private-dns-zone:0.7.0' = if (deployHub && privateHubFoundry) {
   name: 'privateZoneVault'
   params: {
     name: privateVaultDNSZone
   }
+  scope: resourceGroup(hubResourceGroupName)
+  dependsOn: [rgHub]
 }
+
+// module privateZoneVault 'core/DNS/private.dns.zone.bicep' = if (deployHub && privateHubFoundry) {
+//   scope: resourceGroup(hubResourceGroupName)
+//   dependsOn: [rgHub]
+//   name: 'privateZoneVault'
+//   params: {
+//     name: privateVaultDNSZone
+//   }
+// }
 
 module vnetLinkVaultDNSHub 'core/DNS/vnet.link.bicep' = if (deployHub && privateHubFoundry) {
   scope: resourceGroup(hubResourceGroupName)
@@ -246,16 +302,26 @@ module vnetLinkVaultDNSSpoke 'core/DNS/vnet.link.bicep' = if (deployHub && priva
   }
 }
 
-module bastion 'core/bastion/bastion.bicep' = if (deployHub) {
+module bastion 'br/public:avm/res/network/bastion-host:0.6.0' = if (deployHub) {
   scope: resourceGroup(hubResourceGroupName)
   dependsOn: [rgHub]
   name: 'bastion'
   params: {
-    location: location
-    subnetId: hubvnet.outputs.bastionSubnetId
-    suffix: suffix
+    name: 'bastion-${suffix}'
+    virtualNetworkResourceId: hubvnet.outputs.vnetId
   }
 }
+
+// module bastion 'core/bastion/bastion.bicep' = if (deployHub) {
+//   scope: resourceGroup(hubResourceGroupName)
+//   dependsOn: [rgHub]
+//   name: 'bastion'
+//   params: {
+//     location: location
+//     subnetId: hubvnet.outputs.bastionSubnetId
+//     suffix: suffix
+//   }
+// }
 
 module spokeAIFoundyVnet 'core/networking/spoke.ai.bicep' = if (privateHubFoundry) {
   scope: resourceGroup(hubResourceGroupName)
@@ -315,6 +381,23 @@ module foundryDependencies 'core/foundry/dependencies.bicep' = {
   }
 }
 
+// module privateEndpointStorageFoundry 'br/public:avm/res/network/private-endpoint:0.10.1' = {
+//   scope: resourceGroup(spokeAIResourceGroupName)
+//   name: 'privateEndpointStorageFoundry'
+//   params: {
+//     name: 'pe-blob-foundry'
+//     subnetResourceId: spokeAIFoundyVnet.outputs.subnetPEId
+
+//     privateDnsZoneGroup: {      
+//       privateDnsZoneGroupConfigs: [
+//         {
+//           privateDnsZoneResourceId: foundryDependencies.outputs.storageId
+//         }
+//       ]
+//     }
+//   }
+// }
+
 module privateEndpointStorageFoundry 'core/networking/private.endpoint.bicep' = if (privateHubFoundry) {
   scope: resourceGroup(spokeAIResourceGroupName)
   name: 'privateEndpointStorageFoundry'
@@ -324,7 +407,7 @@ module privateEndpointStorageFoundry 'core/networking/private.endpoint.bicep' = 
     groupsIds: ['blob']
     serviceId: foundryDependencies.outputs.storageId
     subnetId: spokeAIFoundyVnet.outputs.subnetPEId
-    dnsZoneId: privateBlobDnsZone.outputs.id
+    dnsZoneId: privateBlobDnsZone.outputs.resourceId
   }
 }
 
@@ -337,7 +420,7 @@ module privateEndpointFileFoundry 'core/networking/private.endpoint.bicep' = if 
     groupsIds: ['file']
     serviceId: foundryDependencies.outputs.storageId
     subnetId: spokeAIFoundyVnet.outputs.subnetPEId
-    dnsZoneId: privateFileDnsZone.outputs.id
+    dnsZoneId: privateFileDnsZone.outputs.resourceId
   }
 }
 
@@ -350,7 +433,7 @@ module privateEndpointVaultFoundry 'core/networking/private.endpoint.bicep' = if
     groupsIds: ['vault']
     serviceId: foundryDependencies.outputs.keyvaultId
     subnetId: spokeAIFoundyVnet.outputs.subnetPEId
-    dnsZoneId: privateZoneVault.outputs.id
+    dnsZoneId: privateZoneVault.outputs.resourceId
   }
 }
 
@@ -360,7 +443,7 @@ module privateEndpointRegistryFoundry 'core/networking/private.endpoint.bicep' =
   params: {
     name: 'pe-acr-foundry'
     location: location
-    dnsZoneId: privateRegistryDnsZone.outputs.id
+    dnsZoneId: privateRegistryDnsZone.outputs.resourceId
     groupsIds: ['registry']
     serviceId: foundryDependencies.outputs.containerRegistryId
     subnetId: spokeAIFoundyVnet.outputs.subnetPEId
