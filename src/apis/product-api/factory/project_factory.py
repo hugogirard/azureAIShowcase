@@ -2,6 +2,10 @@ from dotenv import load_dotenv
 import threading
 import os
 from azure.ai.projects.aio import AIProjectClient
+from azure.ai.inference.aio import EmbeddingsClient, ChatCompletionsClient
+from azure.ai.projects.models import ConnectionType
+from azure.core.credentials import AzureKeyCredential
+from azure.search.documents.aio import SearchClient
 from azure.identity.aio import DefaultAzureCredential
 
 class ProjectFactory:
@@ -22,6 +26,45 @@ class ProjectFactory:
                                 conn_str=os.environ["AIPROJECT_CONNECTION_STRING"], 
                                 credential=DefaultAzureCredential()
                         )
+        self.chat = None
+        self.embeddings = None
+        self.search_client = None
 
     def get_project(self) -> AIProjectClient:
         return self.project
+    
+    async def get_search_client(self) -> SearchClient:
+        if self.search_client is None:
+            search_connection = await self.project.connections.get_default(
+                connection_type=ConnectionType.AZURE_AI_SEARCH, include_credentials=True
+            )        
+            self.search_client = SearchClient(
+                index_name=os.environ["AISEARCH_INDEX_NAME"],
+                endpoint=search_connection.endpoint_url,
+                credential=AzureKeyCredential(key=search_connection.key),
+            )    
+        return self.search_client  
+    
+    async def get_chat_completion_client(self) -> ChatCompletionsClient:
+        if self.chat is None:
+            print('creating chat client')
+            self.chat = await self.project.inference.get_chat_completions_client()
+        return self.chat
+    
+    async def get_embedding_client(self) -> EmbeddingsClient:
+        if self.embeddings is None:
+            self.embeddings = await self.project.inference.get_embeddings_client()
+        return self.embeddings
+    
+    async def dispose(self):
+        if self.chat:
+            await self.chat.close()
+        
+        if self.embeddings:
+            await self.embeddings.close()
+
+        if self.search_client:
+            await self.search_client.close()
+
+        if self.project:            
+            await self.project.close()

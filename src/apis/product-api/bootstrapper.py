@@ -43,8 +43,7 @@ class BootStrapper:
         self.logger.info(tracing_link)      
          
 
-    def get_logger(self,module_name) -> Logger:
-        return logging.getLogger(f"app.{module_name}")
-
+    async def stop(self):
+        await ProjectFactory().dispose()
 
          
