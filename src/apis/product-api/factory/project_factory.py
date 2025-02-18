@@ -33,6 +33,16 @@ class ProjectFactory:
     def get_project(self) -> AIProjectClient:
         return self.project
     
+    async def get_chat_completion_client(self) -> ChatCompletionsClient:
+        if self.chat is None:
+            self.chat = await self.project.inference.get_chat_completions_client()
+        return self.chat
+    
+    async def get_embedding_client(self) -> EmbeddingsClient:
+        if self.embeddings is None:
+            self.embeddings = await self.project.inference.get_embeddings_client()
+        return self.embeddings
+
     async def get_search_client(self) -> SearchClient:
         if self.search_client is None:
             search_connection = await self.project.connections.get_default(
@@ -45,16 +55,6 @@ class ProjectFactory:
             )    
         return self.search_client  
     
-    async def get_chat_completion_client(self) -> ChatCompletionsClient:
-        if self.chat is None:
-            print('creating chat client')
-            self.chat = await self.project.inference.get_chat_completions_client()
-        return self.chat
-    
-    async def get_embedding_client(self) -> EmbeddingsClient:
-        if self.embeddings is None:
-            self.embeddings = await self.project.inference.get_embeddings_client()
-        return self.embeddings
     
     async def dispose(self):
         if self.chat:
